@@ -1,4 +1,4 @@
-define(["jquery","async_j"],function($,async_j)
+define(["jquery","bluebird"],function($,Promise)
        {
 
 	   var commands=["R1","R2","DISPLACE","GT BRANCH","LT BRANCH","GTE BRANCH","LTE BRANCH","EQ BRANCH","NEQ BRANCH","INC R1","INC R2","DEC R1","DEC R2","EXT R1"];
@@ -26,10 +26,10 @@ define(["jquery","async_j"],function($,async_j)
 	       var me=this;
 	       
 	       var instructions;
-	       var instructionsLoaded=new async_j.promise();
+	       var instructionsLoaded=new Promise.pending();
 	       var instructionsFetched=0;
 
-	       var readyToFetchNext=new async_j.promise();
+	       var readyToFetchNext=new Promise.pending();
 	 
 	       $.get(GENESERVER+"/pools?").then(function(poolsAsString){
 		       var pools=JSON.parse(poolsAsString);
@@ -43,7 +43,7 @@ define(["jquery","async_j"],function($,async_j)
 			   }
 		   });
 
-	       readyToFetchNext.then(function(){
+	       readyToFetchNext.promise.then(function(){
 		       $.get(GENESERVER+"/pools/"+poolName+"/next?"+Math.random())
 			   .then(function(geneName)
 				 {
@@ -65,13 +65,13 @@ define(["jquery","async_j"],function($,async_j)
 	       function fitTo(length){
 		   return function(val){
 		       if (isNaN(val)) return val;
-		       while (val<0) val+=length;
+		       if (val<0) val*=-1;
 		       return val%length;
 		   }
 	       }
 	       
 	       function fetch(){
-		   return instructionsLoaded.then(function(){
+		   return instructionsLoaded.promise.then(function(){
 			   var ret=instructions[IP];
 			   instructionsFetched++;
 			   IP++;
@@ -137,7 +137,7 @@ define(["jquery","async_j"],function($,async_j)
 				   {
 				       params[n]=fetch();  //fills params with promises...
 				   }
-			       return async_j.all(params).then(function(fulfilledParams){
+			       return Promise.all(params).then(function(fulfilledParams){
 				       var ret=extFuncToCall.apply(me,fulfilledParams);
 				       if (!isNaN(ret)) R1=ret;
 				   }); 
@@ -160,9 +160,9 @@ define(["jquery","async_j"],function($,async_j)
 	       function command(){
 		   return fetch()
 		       .then(fitTo(commands.length))
-		       .then(updateLastCommand)
+		       //.then(updateLastCommand)
 		       .then(doCommand)
-		       .then(updateDisplay);
+		       //.then(updateDisplay);
 	       }
 	       
 	       this.command=command;
