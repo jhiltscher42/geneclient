@@ -3,8 +3,11 @@
 <script>
 var require={
       paths:{jquery:"//code.jquery.com/jquery-latest.min",
-            async_j:"jscript/async_J"
+            async_j:"jscript/async_J",
+            bluebird:"lib/bluebird"
+
             }
+      shim:{jquery:{exports:"$"}}
    };
 </script>
 <script src="jscript/require.js" data-main="test_geneclient.js"></script>
