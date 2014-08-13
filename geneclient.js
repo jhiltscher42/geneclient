@@ -160,9 +160,9 @@ define(["jquery","bluebird"],function($,Promise)
 	       function command(){
 		   return fetch()
 		       .then(fitTo(commands.length))
-		       //.then(updateLastCommand)
+		       .then(updateLastCommand)
 		       .then(doCommand)
-		       //.then(updateDisplay);
+		       .then(updateDisplay);
 	       }
 	       
 	       this.command=command;
